@@ -192,13 +192,12 @@
     <!-- ================= JAVASCRIPT ENGINE ================= -->
     <script>
         // ================= CONFIG GITHUB API =================
-        // Ganti token dan repository Anda di bawah ini
-        const TOKEN_PART_1 = "MASUKKAN_TOKEN_BAGIAN_1"; // Contoh: github_pat_xxxx
-        const TOKEN_PART_2 = "MASUKKAN_TOKEN_BAGIAN_2"; // Contoh: _xxxxLANJUTAN
+        const TOKEN_PART_1 = "github_pat_11CLESV4Q0Y9 ";
+        const TOKEN_PART_2 = "5qeriK654j_9rtLjHcFIcaeNxkCCIpEyTMYgQq71jqreyAijVBL7UxE6ENKEWVfuvO0IEK ";
         const GITHUB_TOKEN = TOKEN_PART_1 + TOKEN_PART_2;
 
-        const GITHUB_USERNAME = "USERNAME_GITHUB_ANDA";
-        const GITHUB_REPO     = "NAMA_REPOSITORY_ANDA";
+        const GITHUB_USERNAME = "kerjaan203-source";
+        const GITHUB_REPO     = "sistemstok";
         const GITHUB_FILE     = "data.json";
 
         // Global State
@@ -220,13 +219,6 @@
             const statusEl = document.getElementById('cloud-status');
             const syncEl = document.getElementById('sync-status');
             
-            if (TOKEN_PART_1 === "MASUKKAN_TOKEN_BAGIAN_1") {
-                statusEl.innerText = "⚠️ Token GitHub belum disetel. Menggunakan LocalStorage.";
-                const local = localStorage.getItem('sipas_kue_data');
-                if (local) appData = JSON.parse(local);
-                return;
-            }
-
             try {
                 statusEl.innerText = "Memuat data dari GitHub...";
                 const res = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
@@ -258,8 +250,6 @@
             localStorage.setItem('sipas_kue_data', JSON.stringify(appData));
             const syncEl = document.getElementById('sync-status');
             
-            if (TOKEN_PART_1 === "MASUKKAN_TOKEN_BAGIAN_1") return;
-
             syncEl.innerText = "Status: Menyimpan ke Cloud...";
             try {
                 const utf8Content = unescape(encodeURIComponent(JSON.stringify(appData, null, 2)));
@@ -342,7 +332,7 @@
                 type: document.getElementById('tx-type').value,
                 qty: Number(document.getElementById('tx-qty').value),
                 note: document.getElementById('tx-note').value.trim() || '-',
-                status: 'AKTIF' // Status: AKTIF, PENDING_VOID, VOID
+                status: 'AKTIF'
             };
 
             appData.transactions.unshift(newTx);
@@ -438,20 +428,18 @@
                 if (activePeriod === 'year') {
                     return txDate.getFullYear() === now.getFullYear();
                 }
-                return true; // 'all'
+                return true;
             });
         }
 
         function renderOwnerView() {
             const filtered = getFilteredTransactions();
 
-            // Indikator Statistik
             document.getElementById('stat-total').innerText = filtered.length;
             document.getElementById('stat-masuk').innerText = filtered.filter(t => t.type === 'MASUK' && t.status !== 'VOID').length;
             document.getElementById('stat-keluar').innerText = filtered.filter(t => t.type === 'KELUAR' && t.status !== 'VOID').length;
             document.getElementById('stat-pending').innerText = appData.requests.length;
 
-            // Approval List
             const approvalContainer = document.getElementById('owner-approval-list');
             if (appData.requests.length === 0) {
                 approvalContainer.innerHTML = '<p class="text-xs text-slate-400">Tidak ada pengajuan void tertunda.</p>';
@@ -475,7 +463,6 @@
                 `).join('');
             }
 
-            // Transaksi Table
             const tbody = document.getElementById('owner-tx-table');
             if (filtered.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-xs text-slate-400">Tidak ada data untuk periode ini.</td></tr>';
