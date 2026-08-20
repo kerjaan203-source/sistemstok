@@ -4,9 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SISTEM STOK & PURCHASING PASTRY FITY</title>
-    <!-- Tailwind CSS (iOS 26 Modern Styling) -->
+    <!-- Tailwind CSS (Soft Pink Theme & iOS 26 Styling) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js untuk Analisis Trend -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        softpink: {
+                            50: '#fdf2f4',
+                            100: '#fce7eb',
+                            500: '#e11d48',
+                            600: '#be123c',
+                            700: '#9f1239'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- SheetJS untuk Export Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -15,11 +32,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap');
-        body { font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #f5f5f7; color: #1d1d1f; }
-        .ios-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid rgba(255,255,255,0.8); }
-        .ios-input { background: rgba(118, 118, 128, 0.08); border: none; border-radius: 12px; padding: 12px 16px; font-size: 15px; width: 100%; transition: all 0.2s; }
-        .ios-input:focus { outline: none; background: rgba(118, 118, 128, 0.12); ring: 2px solid #007aff; }
-        .ios-btn { background: #007aff; color: white; border-radius: 14px; font-weight: 600; padding: 12px 20px; transition: opacity 0.2s; }
+        body { font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #fff1f2; color: #1d1d1f; }
+        .ios-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); border-radius: 20px; box-shadow: 0 10px 30px rgba(225, 29, 72, 0.05); border: 1px solid rgba(251, 207, 232, 0.6); }
+        .ios-input { background: rgba(244, 63, 94, 0.04); border: 1px solid rgba(251, 207, 232, 0.8); border-radius: 12px; padding: 12px 16px; font-size: 15px; width: 100%; transition: all 0.2s; }
+        .ios-input:focus { outline: none; background: rgba(255, 255, 255, 1); border-color: #e11d48; ring: 2px solid rgba(225, 29, 72, 0.2); }
+        .ios-btn { background: #e11d48; color: white; border-radius: 14px; font-weight: 600; padding: 12px 20px; transition: opacity 0.2s; }
         .ios-btn:active { opacity: 0.7; }
     </style>
 </head>
@@ -28,12 +45,11 @@
     <!-- ================= AUTHENTICATION & PIN PAGE ================= -->
     <div id="login-page" class="min-h-[85vh] flex items-center justify-center">
         <div class="ios-card p-8 w-full max-w-md text-center">
-            <div class="text-5xl mb-3">🍰</div>
-            <h1 class="text-xl font-bold text-slate-900 tracking-tight">PASTRY FITY</h1>
-            <p class="text-xs font-medium text-slate-500 mt-1">Sistem Stok & Purchasing Perusahaan</p>
-            <p class="text-[10px] text-pink-600 font-semibold mb-6">Made in by: April Y.</p>
+            <div class="text-5xl mb-2">🍰</div>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">SISTEM STOK & PURCHASING PASTRY FITY</h1>
+            <p class="text-xs font-semibold text-softpink-600 mt-2">Made in by: April Y.</p>
 
-            <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
+            <form onsubmit="handleLogin(event)" class="space-y-4 text-left mt-6">
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">PILIH AKSES PERAN</label>
                     <select id="login-role" class="ios-input bg-white">
@@ -45,7 +61,7 @@
                     <label class="block text-xs font-semibold text-slate-500 mb-1">MASUKKAN PIN KEAMANAN</label>
                     <input type="password" id="login-pin" maxlength="6" required placeholder="••••" class="ios-input text-center text-xl tracking-widest font-mono bg-white">
                 </div>
-                <button type="submit" class="ios-btn w-full mt-2 shadow-lg shadow-blue-500/20">Buka Akses Sistem</button>
+                <button type="submit" class="ios-btn w-full mt-2 shadow-lg shadow-softpink-500/20">Buka Akses Sistem</button>
             </form>
             <div id="cloud-status" class="mt-4 text-[11px] text-slate-400">Menghubungkan Cloud Server...</div>
         </div>
@@ -58,19 +74,20 @@
             <div>
                 <div class="flex items-center gap-2">
                     <span class="text-2xl">🍰</span>
-                    <h2 class="font-bold text-lg text-slate-900" id="header-title">Dashboard Sistem</h2>
+                    <h2 class="font-bold text-lg text-slate-900" id="header-title">SISTEM STOK & PURCHASING PASTRY FITY</h2>
                 </div>
-                <p class="text-xs text-slate-400 mt-0.5">PASTRY FITY Enterprise • <span id="sync-status" class="text-blue-600 font-medium">Cloud Sinkron</span></p>
+                <p class="text-xs font-semibold text-softpink-600 mt-0.5">Made in by: April Y. • <span id="sync-status" class="text-slate-500 font-normal">Cloud Sinkron</span></p>
             </div>
             <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
                 <span id="user-badge" class="px-3 py-1 rounded-full text-xs font-bold uppercase">Role</span>
-                <button onclick="handleLogout()" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-xl text-xs font-semibold transition">Keluar</button>
+                <button onclick="handleLogout()" class="bg-rose-50 text-rose-600 hover:bg-rose-100 px-4 py-2 rounded-xl text-xs font-semibold transition">Keluar</button>
             </div>
         </header>
 
         <!-- Navigation Tabs -->
-        <div class="flex gap-2 bg-white/60 p-1.5 rounded-2xl border border-slate-200 overflow-x-auto">
-            <button onclick="switchTab('stok')" id="tab-stok" class="flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-sm transition whitespace-nowrap">📦 Stok & Inventaris</button>
+        <div class="flex gap-2 bg-white/60 p-1.5 rounded-2xl border border-softpink-100 overflow-x-auto">
+            <button onclick="switchTab('stok')" id="tab-stok" class="flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl bg-softpink-500 text-white shadow-sm transition whitespace-nowrap">📦 Stok & Inventaris</button>
+            <button onclick="switchTab('pengajuan')" id="tab-pengajuan" class="flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl text-slate-600 hover:bg-white transition whitespace-nowrap">📝 Pengajuan Barang & Jasa</button>
             <button onclick="switchTab('purchasing')" id="tab-purchasing" class="flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl text-slate-600 hover:bg-white transition whitespace-nowrap">🛒 Sub-Dashboard Purchasing</button>
             <button onclick="switchTab('analytics')" id="tab-analytics" class="flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl text-slate-600 hover:bg-white transition whitespace-nowrap">📊 Trend & Laporan</button>
         </div>
@@ -84,11 +101,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1">NAMA BARANG / BAHAN BAKU</label>
-                            <input type="text" id="tx-item" required placeholder="Contoh: Tepung Terigu, Mentega" class="ios-input">
+                            <input type="text" id="tx-item" required placeholder="Contoh: Tepung Terigu, Mentega" class="ios-input bg-white">
                         </div>
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1">JENIS TRANSAKSI</label>
-                            <select id="tx-type" class="ios-input">
+                            <select id="tx-type" class="ios-input bg-white">
                                 <option value="MASUK">🟢 Stok Masuk (Pembelian/Restock)</option>
                                 <option value="KELUAR">🟠 Stok Keluar (Produksi/Terjual)</option>
                             </select>
@@ -97,20 +114,20 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1">JUMLAH (QTY)</label>
-                            <input type="number" id="tx-qty" required min="1" placeholder="0" class="ios-input">
+                            <input type="number" id="tx-qty" required min="1" placeholder="0" class="ios-input bg-white">
                         </div>
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1">SATUAN (Pcs, Kg, Dus, Gram)</label>
-                            <input type="text" id="tx-unit" required placeholder="Contoh: Kg / Pcs" class="ios-input">
+                            <input type="text" id="tx-unit" required placeholder="Contoh: Kg / Pcs" class="ios-input bg-white">
                         </div>
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1">MINIMUM QTY ALERT</label>
-                            <input type="number" id="tx-minqty" required min="0" placeholder="Batas aman stok" class="ios-input">
+                            <input type="number" id="tx-minqty" required min="0" placeholder="Batas aman stok" class="ios-input bg-white">
                         </div>
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-500 mb-1">KETERANGAN / VENDOR</label>
-                        <input type="text" id="tx-note" placeholder="Catatan opsional..." class="ios-input">
+                        <input type="text" id="tx-note" placeholder="Catatan opsional..." class="ios-input bg-white">
                     </div>
                     <button type="submit" class="ios-btn w-full mt-2">Simpan ke Sistem Stok</button>
                 </form>
@@ -125,7 +142,7 @@
                 <div class="overflow-x-auto">
                     <table id="stok-table" class="w-full text-left text-xs sm:text-sm">
                         <thead>
-                            <tr class="border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
+                            <tr class="border-b border-softpink-100 text-slate-400 font-bold uppercase text-[10px]">
                                 <th class="py-2.5 px-3">Nama Barang</th>
                                 <th class="py-2.5 px-3">Sisa Stok</th>
                                 <th class="py-2.5 px-3">Min Qty</th>
@@ -139,7 +156,51 @@
             </div>
         </div>
 
-        <!-- ================= TAB 2: SUB-DASHBOARD PURCHASING ================= -->
+        <!-- ================= TAB 2: PENGAJUAN BARANG & JASA ================= -->
+        <div id="section-pengajuan" class="hidden space-y-6">
+            <!-- Form Pengajuan oleh Admin -->
+            <div class="ios-card p-6">
+                <h3 class="font-bold text-sm text-slate-800 mb-4 flex items-center gap-2"><span>📝</span> Form Pengajuan Barang & Jasa Baru</h3>
+                <form onsubmit="submitPengajuan(event)" class="space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">NAMA BARANG / JASA</label>
+                            <input type="text" id="pg-item" required placeholder="Contoh: Perbaikan Oven / Tepung Tambahan" class="ios-input bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">JUMLAH / VOLUME</label>
+                            <input type="text" id="pg-qty" required placeholder="Contoh: 5 Sak / 1 Paket" class="ios-input bg-white">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">ALASAN / KEPERLUAN PENGAJUAN</label>
+                        <input type="text" id="pg-reason" required placeholder="Contoh: Persiapan pesanan kue lebaran meningkat" class="ios-input bg-white">
+                    </div>
+                    <button type="submit" class="ios-btn w-full mt-2">Kirim Pengajuan ke Owner/Manager</button>
+                </form>
+            </div>
+
+            <!-- Tabel Status Pengajuan -->
+            <div class="ios-card p-6">
+                <h3 class="font-bold text-sm text-slate-800 mb-4 flex items-center gap-2"><span>📋</span> Riwayat & Status Pengajuan</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead>
+                            <tr class="border-b border-softpink-100 text-slate-400 font-bold uppercase text-[10px]">
+                                <th class="py-2.5 px-3">Tanggal</th>
+                                <th class="py-2.5 px-3">Barang / Jasa</th>
+                                <th class="py-2.5 px-3">Jumlah</th>
+                                <th class="py-2.5 px-3">Alasan</th>
+                                <th class="py-2.5 px-3">Status Persetujuan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pengajuan-tbody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: SUB-DASHBOARD PURCHASING ================= -->
         <div id="section-purchasing" class="hidden space-y-6">
             <!-- Form Input Purchasing -->
             <div class="ios-card p-6">
@@ -148,25 +209,25 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1">NAMA BARANG</label>
-                            <input type="text" id="po-item" required placeholder="Nama barang yang dipesan" class="ios-input">
+                            <input type="text" id="po-item" required placeholder="Nama barang yang dipesan" class="ios-input bg-white">
                         </div>
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1">PLATFORM / SUPPLIER</label>
-                            <input type="text" id="po-platform" required placeholder="Contoh: Tokopedia, Shopee, Supplier Toko" class="ios-input">
+                            <input type="text" id="po-platform" required placeholder="Contoh: Tokopedia, Shopee, Supplier Toko" class="ios-input bg-white">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1">HARGA (RP)</label>
-                            <input type="number" id="po-price" required min="0" placeholder="0" class="ios-input">
+                            <input type="number" id="po-price" required min="0" placeholder="0" class="ios-input bg-white">
                         </div>
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1">KODE STRUK / RESI</label>
-                            <input type="text" id="po-receipt" required placeholder="Nomor Resi / Invoice" class="ios-input">
+                            <input type="text" id="po-receipt" required placeholder="Nomor Resi / Invoice" class="ios-input bg-white">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">TANGGAL PEMBELIAN</label>
-                            <input type="date" id="po-date" required class="ios-input">
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">TANGGAL KAPAN DIBELI</label>
+                            <input type="date" id="po-date" required class="ios-input bg-white">
                         </div>
                     </div>
                     <div>
@@ -191,8 +252,8 @@
                 <div class="overflow-x-auto">
                     <table id="po-table" class="w-full text-left text-xs sm:text-sm">
                         <thead>
-                            <tr class="border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
-                                <th class="py-2.5 px-3">Tanggal</th>
+                            <tr class="border-b border-softpink-100 text-slate-400 font-bold uppercase text-[10px]">
+                                <th class="py-2.5 px-3">Tanggal Beli</th>
                                 <th class="py-2.5 px-3">Barang</th>
                                 <th class="py-2.5 px-3">Platform</th>
                                 <th class="py-2.5 px-3">Harga</th>
@@ -206,7 +267,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 3: ANALYTICS & TREND ================= -->
+        <!-- ================= TAB 4: ANALYTICS & TREND ================= -->
         <div id="section-analytics" class="hidden space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="ios-card p-5 text-center">
@@ -233,10 +294,17 @@
                 </div>
             </div>
 
-            <!-- Pusat Otorisasi Void Khusus Owner / Manager -->
-            <div id="owner-approval-section" class="ios-card p-6 hidden">
-                <h3 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2"><span>🛡️</span> Dashboard Otorisasi Void (Persetujuan Manager/Owner)</h3>
-                <div id="owner-approval-list" class="space-y-3"></div>
+            <!-- Pusat Otorisasi Pengajuan & Void Khusus Owner / Manager -->
+            <div id="owner-approval-section" class="ios-card p-6 hidden space-y-4">
+                <div>
+                    <h3 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2"><span>🛡️</span> Persetujuan Pengajuan Barang & Jasa (Owner/Manager)</h3>
+                    <div id="owner-pengajuan-list" class="space-y-3"></div>
+                </div>
+                <hr class="border-softpink-100">
+                <div>
+                    <h3 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2"><span>🛡️</span> Permintaan Void Data Inventaris</h3>
+                    <div id="owner-approval-list" class="space-y-3"></div>
+                </div>
             </div>
 
             <!-- Export Buttons Global -->
@@ -256,20 +324,19 @@
 
     <!-- ================= JAVASCRIPT LOGIC ================= -->
     <script>
-        // Token GitHub & Konfigurasi Cloud
         const TOKEN_PART_1 = "github_pat_11CLESV4Q0Y9";
         const TOKEN_PART_2 = "5qeriK654j_9rtLjHcFIcaeNxkCCIpEyTMYgQq71jqreyAijVBL7UxE6ENKEWVfuvO0IEK";
         const GITHUB_TOKEN = TOKEN_PART_1 + TOKEN_PART_2;
         const GITHUB_USERNAME = "kerjaan203-source";
         const GITHUB_REPO     = "sistemstok";
-        const GITHUB_FILE     = "data_pastry_fity.json";
+        const GITHUB_FILE     = "data_pastry_fity_v2.json";
 
-        // PIN Keamanan Peran
         const PINS = { admin: "1234", owner: "8888" };
 
         let appData = {
             transactions: [],
             purchasing: [],
+            pengajuan: [],
             requests: []
         };
         let currentRole = null;
@@ -294,22 +361,22 @@
                     statusEl.innerText = "🟢 Terhubung ke Cloud GitHub (Aman)";
                 } else {
                     statusEl.innerText = "⚠️ Belum ada file cloud, menggunakan memori lokal.";
-                    const local = localStorage.getItem('pastry_fity_data');
+                    const local = localStorage.getItem('pastry_fity_data_v2');
                     if (local) appData = JSON.parse(local);
                 }
             } catch (err) {
                 statusEl.innerText = "⚠️ Mode Offline (Menggunakan Penyimpanan Lokal)";
-                const local = localStorage.getItem('pastry_fity_data');
+                const local = localStorage.getItem('pastry_fity_data_v2');
                 if (local) appData = JSON.parse(local);
             }
         }
 
         async function saveToCloud() {
-            localStorage.setItem('pastry_fity_data', JSON.stringify(appData));
+            localStorage.setItem('pastry_fity_data_v2', JSON.stringify(appData));
             document.getElementById('sync-status').innerText = "Menyimpan ke Cloud...";
             try {
                 const base64Content = btoa(unescape(encodeURIComponent(JSON.stringify(appData, null, 2))));
-                const payload = { message: "Auto-sync Pastry Fity System", content: base64Content };
+                const payload = { message: "Auto-sync Pastry Fity System v2", content: base64Content };
                 if (fileSha) payload.sha = fileSha;
 
                 const res = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
@@ -342,7 +409,7 @@
                 const badge = document.getElementById('user-badge');
                 if (role === 'admin') {
                     badge.innerText = "Admin Gudang";
-                    badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase bg-blue-100 text-blue-700";
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase bg-pink-100 text-pink-700";
                     document.getElementById('owner-approval-section').classList.add('hidden');
                 } else {
                     badge.innerText = "Owner / Manager";
@@ -363,16 +430,15 @@
         }
 
         function switchTab(tab) {
-            ['stok', 'purchasing', 'analytics'].forEach(t => {
+            ['stok', 'pengajuan', 'purchasing', 'analytics'].forEach(t => {
                 document.getElementById(`section-${t}`).classList.add('hidden');
                 document.getElementById(`tab-${t}`).className = "flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl text-slate-600 hover:bg-white transition whitespace-nowrap";
             });
             document.getElementById(`section-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).className = "flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-sm transition whitespace-nowrap";
+            document.getElementById(`tab-${tab}`).className = "flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl bg-softpink-500 text-white shadow-sm transition whitespace-nowrap";
             if(tab === 'analytics') renderAnalytics();
         }
 
-        // Kalkulasi Inventaris Sisa Stok per Item
         function getInventorySummary() {
             let summary = {};
             appData.transactions.forEach(tx => {
@@ -411,6 +477,24 @@
             alert('Transaksi barang berhasil disimpan!');
         }
 
+        async function submitPengajuan(e) {
+            e.preventDefault();
+            const newPg = {
+                id: Date.now(),
+                dateStr: new Date().toLocaleDateString('id-ID'),
+                item: document.getElementById('pg-item').value.trim(),
+                qty: document.getElementById('pg-qty').value.trim(),
+                reason: document.getElementById('pg-reason').value.trim(),
+                status: 'PENDING'
+            };
+
+            appData.pengajuan.unshift(newPg);
+            await saveToCloud();
+            e.target.reset();
+            refreshUI();
+            alert('Pengajuan berhasil dikirim ke Owner/Manager.');
+        }
+
         async function submitPurchasing(e) {
             e.preventDefault();
             const newPo = {
@@ -431,7 +515,7 @@
         }
 
         function refreshUI() {
-            // Render Inventory Stok
+            // Inventaris Stok
             const summary = getInventorySummary();
             const invTbody = document.getElementById('inventory-tbody');
             const keys = Object.keys(summary);
@@ -458,7 +542,25 @@
                 }).join('');
             }
 
-            // Render Purchasing Tracker
+            // Pengajuan Table
+            const pgTbody = document.getElementById('pengajuan-tbody');
+            if(appData.pengajuan.length === 0) {
+                pgTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-slate-400">Belum ada pengajuan barang & jasa.</td></tr>';
+            } else {
+                pgTbody.innerHTML = appData.pengajuan.map(pg => `
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-3 px-3 text-slate-500">${pg.dateStr}</td>
+                        <td class="py-3 px-3 font-semibold text-slate-800">${pg.item}</td>
+                        <td class="py-3 px-3 text-slate-600">${pg.qty}</td>
+                        <td class="py-3 px-3 text-slate-600">${pg.reason}</td>
+                        <td class="py-3 px-3 font-bold text-xs">
+                            ${pg.status === 'PENDING' ? '<span class="text-amber-600">Menunggu Approval</span>' : pg.status === 'DISETUJUI' ? '<span class="text-emerald-600">✅ Disetujui</span>' : `<span class="text-rose-600">❌ Ditolak (${pg.note || '-'})</span>`}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            // Purchasing Tracker
             const poTbody = document.getElementById('purchasing-tbody');
             if(appData.purchasing.length === 0) {
                 poTbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-slate-400">Belum ada data purchasing.</td></tr>';
@@ -469,13 +571,12 @@
                         <td class="py-3 px-3 font-semibold text-slate-800">${po.item}</td>
                         <td class="py-3 px-3 text-slate-600">${po.platform}</td>
                         <td class="py-3 px-3 font-medium text-slate-700">Rp ${po.price.toLocaleString('id-ID')}</td>
-                        <td class="py-3 px-3 font-mono text-xs text-blue-600">${po.receipt}</td>
+                        <td class="py-3 px-3 font-mono text-xs text-softpink-600">${po.receipt}</td>
                         <td class="py-3 px-3 font-bold text-xs text-amber-700">${po.status}</td>
                     </tr>
                 `).join('');
             }
 
-            // Render Owner Approval
             if(currentRole === 'owner') {
                 renderOwnerApprovals();
             }
@@ -497,23 +598,77 @@
         }
 
         function renderOwnerApprovals() {
+            // Approval Pengajuan
+            const pgContainer = document.getElementById('owner-pengajuan-list');
+            const pendingPg = appData.pengajuan.filter(p => p.status === 'PENDING');
+            if(pendingPg.length === 0) {
+                pgContainer.innerHTML = '<p class="text-xs text-slate-400">Tidak ada pengajuan barang & jasa yang tertunda.</p>';
+            } else {
+                pgContainer.innerHTML = pendingPg.map(pg => `
+                    <div class="border border-softpink-200 bg-softpink-50 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <p class="font-bold text-sm text-slate-800">${pg.item} (Jumlah: ${pg.qty})</p>
+                            <p class="text-xs text-slate-600 mt-0.5">Alasan: "${pg.reason}" (${pg.dateStr})</p>
+                        </div>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button onclick="approvePengajuan(${pg.id})" class="flex-1 sm:flex-initial bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Setujui</button>
+                            <button onclick="rejectPengajuan(${pg.id})" class="flex-1 sm:flex-initial bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Tolak</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Approval Void
             const container = document.getElementById('owner-approval-list');
             if(appData.requests.length === 0) {
                 container.innerHTML = '<p class="text-xs text-slate-400">Tidak ada pengajuan void yang tertunda.</p>';
-                return;
+            } else {
+                container.innerHTML = appData.requests.map(req => `
+                    <div class="border border-amber-200 bg-amber-50 p-4 rounded-xl flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-sm text-slate-800">Barang: ${req.item}</p>
+                            <p class="text-xs text-amber-900 mt-0.5">Alasan: "${req.reason}" (${req.date})</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="approveVoid(${req.id}, '${req.item}')" class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Setujui Void</button>
+                            <button onclick="rejectVoid(${req.id})" class="bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold">Tolak</button>
+                        </div>
+                    </div>
+                `).join('');
             }
-            container.innerHTML = appData.requests.map(req => `
-                <div class="border border-amber-200 bg-amber-50 p-4 rounded-xl flex justify-between items-center">
-                    <div>
-                        <p class="font-bold text-sm text-slate-800">Barang: ${req.item}</p>
-                        <p class="text-xs text-amber-900 mt-0.5">Alasan: "${req.reason}" (${req.date})</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="approveVoid(${req.id}, '${req.item}')" class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Setujui Void</button>
-                        <button onclick="rejectVoid(${req.id})" class="bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold">Tolak</button>
-                    </div>
-                </div>
-            `).join('');
+        }
+
+        async function approvePengajuan(pgId) {
+            const pg = appData.pengajuan.find(p => p.id === pgId);
+            if(pg) {
+                pg.status = 'DISETUJUI';
+                // Otomatis masukkan ke subbab barang yang akan dibeli di Purchasing dengan status Menunggu Pembayaran
+                appData.purchasing.unshift({
+                    id: Date.now(),
+                    date: new Date().toISOString().split('T')[0],
+                    item: `${pg.item} (${pg.qty})`,
+                    platform: 'Pengajuan Internal',
+                    price: 0,
+                    receipt: '-',
+                    status: 'Menunggu Pembayaran'
+                });
+                await saveToCloud();
+                refreshUI();
+                alert('Pengajuan disetujui dan otomatis ditambahkan ke Sub-Dashboard Purchasing.');
+            }
+        }
+
+        async function rejectPengajuan(pgId) {
+            const reason = prompt("Masukkan alasan penolakan pengajuan ini:");
+            if(!reason) return;
+            const pg = appData.pengajuan.find(p => p.id === pgId);
+            if(pg) {
+                pg.status = 'DITOLAK';
+                pg.note = reason;
+                await saveToCloud();
+                refreshUI();
+                alert('Pengajuan ditolak.');
+            }
         }
 
         async function approveVoid(reqId, itemName) {
@@ -543,7 +698,6 @@
             document.getElementById('stat-critical').innerText = criticalCount;
             document.getElementById('stat-total-po').innerText = `Rp ${totalPoPrice.toLocaleString('id-ID')}`;
 
-            // Render Chart Trend Barang Paling Banyak Keluar
             let itemKeluarCount = {};
             appData.transactions.forEach(tx => {
                 if(tx.type === 'KELUAR' && tx.status !== 'VOID') {
@@ -564,7 +718,7 @@
                     datasets: [{
                         label: 'Total Qty Keluar / Habis',
                         data: chartData.length > 0 ? chartData : [0],
-                        backgroundColor: '#007aff',
+                        backgroundColor: '#e11d48',
                         borderRadius: 8
                     }]
                 },
@@ -577,7 +731,6 @@
             });
         }
 
-        // Fitur Download / Export Universal
         function exportTableToExcel(tableId, filename) {
             const table = document.getElementById(tableId);
             const wb = XLSX.utils.table_to_book(table, {sheet: "Sheet1"});
@@ -588,8 +741,10 @@
             const wb = XLSX.utils.book_new();
             const wsTx = XLSX.utils.json_to_sheet(appData.transactions);
             const wsPo = XLSX.utils.json_to_sheet(appData.purchasing);
+            const wsPg = XLSX.utils.json_to_sheet(appData.pengajuan);
             XLSX.utils.book_append_sheet(wb, wsTx, "Inventaris Stok");
             XLSX.utils.book_append_sheet(wb, wsPo, "Purchasing");
+            XLSX.utils.book_append_sheet(wb, wsPg, "Pengajuan");
             XLSX.writeFile(wb, `Laporan_Lengkap_PastryFity_${new Date().toLocaleDateString('id-ID')}.xlsx`);
         }
 
@@ -597,7 +752,7 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             doc.setFontSize(16);
-            doc.text("Laporan Resmi - PASTRY FITY", 14, 15);
+            doc.text("Laporan Resmi - SISTEM STOK & PURCHASING PASTRY FITY", 14, 15);
             doc.setFontSize(10);
             doc.text(`Dicetak oleh: ${currentRole.toUpperCase()} | Tanggal: ${new Date().toLocaleString('id-ID')}`, 14, 22);
 
