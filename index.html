@@ -3,558 +3,612 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Stok & Purchasing - Toko Kue</title>
-    <!-- Tailwind CSS untuk Desain Responsif -->
+    <title>SISTEM STOK & PURCHASING PASTRY FITY</title>
+    <!-- Tailwind CSS (iOS 26 Modern Styling) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js untuk Analisis Trend -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- SheetJS untuk Export Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- jsPDF & AutoTable untuk Export PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap');
+        body { font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #f5f5f7; color: #1d1d1f; }
+        .ios-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid rgba(255,255,255,0.8); }
+        .ios-input { background: rgba(118, 118, 128, 0.08); border: none; border-radius: 12px; padding: 12px 16px; font-size: 15px; width: 100%; transition: all 0.2s; }
+        .ios-input:focus { outline: none; background: rgba(118, 118, 128, 0.12); ring: 2px solid #007aff; }
+        .ios-btn { background: #007aff; color: white; border-radius: 14px; font-weight: 600; padding: 12px 20px; transition: opacity 0.2s; }
+        .ios-btn:active { opacity: 0.7; }
+    </style>
 </head>
-<body class="bg-slate-100 font-sans text-slate-800">
+<body class="p-3 sm:p-6 max-w-6xl mx-auto">
 
-    <!-- CONTAINER UTAMA -->
-    <div id="app" class="min-h-screen flex flex-col">
-        
-        <!-- ================= PAGE: LOGIN ================= -->
-        <div id="login-page" class="flex-1 flex items-center justify-center p-4">
-            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md border border-slate-200">
-                <div class="text-center mb-6">
-                    <span class="text-5xl">🍰</span>
-                    <h1 class="text-2xl font-bold mt-2 text-slate-800">SIPAS Toko Kue</h1>
-                    <p class="text-sm text-slate-500">Sistem Inventaris & Pembelian Cloud</p>
+    <!-- ================= AUTHENTICATION & PIN PAGE ================= -->
+    <div id="login-page" class="min-h-[85vh] flex items-center justify-center">
+        <div class="ios-card p-8 w-full max-w-md text-center">
+            <div class="text-5xl mb-3">🍰</div>
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight">PASTRY FITY</h1>
+            <p class="text-xs font-medium text-slate-500 mt-1">Sistem Stok & Purchasing Perusahaan</p>
+            <p class="text-[10px] text-pink-600 font-semibold mb-6">Made in by: April Y.</p>
+
+            <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">PILIH AKSES PERAN</label>
+                    <select id="login-role" class="ios-input bg-white">
+                        <option value="admin">Admin Gudang & Operasional</option>
+                        <option value="owner">Owner / Manager (Eksekutif)</option>
+                    </select>
                 </div>
-                
-                <form onsubmit="handleLogin(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Pilih Peran Akun</label>
-                        <select id="login-role" class="w-full border border-slate-300 rounded-lg p-2.5 bg-white text-sm focus:ring-2 focus:ring-pink-500 focus:outline-none">
-                            <option value="admin">Admin Toko (Input Stok & Request Void)</option>
-                            <option value="owner">Owner / Manager (Approval & Laporan)</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-medium py-2.5 rounded-lg transition shadow-md">
-                        Masuk ke Dashboard
-                    </button>
-                </form>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">MASUKKAN PIN KEAMANAN</label>
+                    <input type="password" id="login-pin" maxlength="6" required placeholder="••••" class="ios-input text-center text-xl tracking-widest font-mono bg-white">
+                </div>
+                <button type="submit" class="ios-btn w-full mt-2 shadow-lg shadow-blue-500/20">Buka Akses Sistem</button>
+            </form>
+            <div id="cloud-status" class="mt-4 text-[11px] text-slate-400">Menghubungkan Cloud Server...</div>
+        </div>
+    </div>
 
-                <div id="cloud-status" class="mt-4 text-center text-xs text-slate-400">
-                    Memeriksa koneksi GitHub...
+    <!-- ================= MAIN DASHBOARD APP ================= -->
+    <div id="dashboard-app" class="hidden space-y-6">
+        <!-- iOS Header -->
+        <header class="ios-card px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🍰</span>
+                    <h2 class="font-bold text-lg text-slate-900" id="header-title">Dashboard Sistem</h2>
+                </div>
+                <p class="text-xs text-slate-400 mt-0.5">PASTRY FITY Enterprise • <span id="sync-status" class="text-blue-600 font-medium">Cloud Sinkron</span></p>
+            </div>
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                <span id="user-badge" class="px-3 py-1 rounded-full text-xs font-bold uppercase">Role</span>
+                <button onclick="handleLogout()" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-xl text-xs font-semibold transition">Keluar</button>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex gap-2 bg-white/60 p-1.5 rounded-2xl border border-slate-200 overflow-x-auto">
+            <button onclick="switchTab('stok')" id="tab-stok" class="flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-sm transition whitespace-nowrap">📦 Stok & Inventaris</button>
+            <button onclick="switchTab('purchasing')" id="tab-purchasing" class="flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl text-slate-600 hover:bg-white transition whitespace-nowrap">🛒 Sub-Dashboard Purchasing</button>
+            <button onclick="switchTab('analytics')" id="tab-analytics" class="flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl text-slate-600 hover:bg-white transition whitespace-nowrap">📊 Trend & Laporan</button>
+        </div>
+
+        <!-- ================= TAB 1: STOK & INVENTARIS ================= -->
+        <div id="section-stok" class="space-y-6">
+            <!-- Form Input Admin -->
+            <div class="ios-card p-6">
+                <h3 class="font-bold text-sm text-slate-800 mb-4 flex items-center gap-2"><span>📝</span> Form Pencatatan Keluar-Masuk Barang</h3>
+                <form onsubmit="submitTransaction(event)" class="space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">NAMA BARANG / BAHAN BAKU</label>
+                            <input type="text" id="tx-item" required placeholder="Contoh: Tepung Terigu, Mentega" class="ios-input">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">JENIS TRANSAKSI</label>
+                            <select id="tx-type" class="ios-input">
+                                <option value="MASUK">🟢 Stok Masuk (Pembelian/Restock)</option>
+                                <option value="KELUAR">🟠 Stok Keluar (Produksi/Terjual)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">JUMLAH (QTY)</label>
+                            <input type="number" id="tx-qty" required min="1" placeholder="0" class="ios-input">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">SATUAN (Pcs, Kg, Dus, Gram)</label>
+                            <input type="text" id="tx-unit" required placeholder="Contoh: Kg / Pcs" class="ios-input">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">MINIMUM QTY ALERT</label>
+                            <input type="number" id="tx-minqty" required min="0" placeholder="Batas aman stok" class="ios-input">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">KETERANGAN / VENDOR</label>
+                        <input type="text" id="tx-note" placeholder="Catatan opsional..." class="ios-input">
+                    </div>
+                    <button type="submit" class="ios-btn w-full mt-2">Simpan ke Sistem Stok</button>
+                </form>
+            </div>
+
+            <!-- Tabel Data Stok & Status Sisa -->
+            <div class="ios-card p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2"><span>📋</span> Realtime Inventaris Stok & Batas Minimum</h3>
+                    <button onclick="exportTableToExcel('stok-table', 'Data_Inventaris_Stok')" class="text-xs bg-emerald-600 text-white font-semibold px-3 py-1.5 rounded-xl shadow-sm">Download Excel</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table id="stok-table" class="w-full text-left text-xs sm:text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
+                                <th class="py-2.5 px-3">Nama Barang</th>
+                                <th class="py-2.5 px-3">Sisa Stok</th>
+                                <th class="py-2.5 px-3">Min Qty</th>
+                                <th class="py-2.5 px-3">Status Peringatan</th>
+                                <th class="py-2.5 px-3">Aksi / Void</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-tbody" class="divide-y divide-slate-100"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- ================= PAGE: DASHBOARD ================= -->
-        <div id="dashboard-page" class="hidden flex-1 flex flex-col">
-            <!-- Header Navigasi -->
-            <header class="bg-white shadow-sm border-b border-slate-200 px-4 py-3 sticky top-0 z-50 flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <span class="text-2xl">🍰</span>
+        <!-- ================= TAB 2: SUB-DASHBOARD PURCHASING ================= -->
+        <div id="section-purchasing" class="hidden space-y-6">
+            <!-- Form Input Purchasing -->
+            <div class="ios-card p-6">
+                <h3 class="font-bold text-sm text-slate-800 mb-4 flex items-center gap-2"><span>🛒</span> Input Pencatatan Barang yang Akan Dibeli (Purchasing)</h3>
+                <form onsubmit="submitPurchasing(event)" class="space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">NAMA BARANG</label>
+                            <input type="text" id="po-item" required placeholder="Nama barang yang dipesan" class="ios-input">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">PLATFORM / SUPPLIER</label>
+                            <input type="text" id="po-platform" required placeholder="Contoh: Tokopedia, Shopee, Supplier Toko" class="ios-input">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">HARGA (RP)</label>
+                            <input type="number" id="po-price" required min="0" placeholder="0" class="ios-input">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">KODE STRUK / RESI</label>
+                            <input type="text" id="po-receipt" required placeholder="Nomor Resi / Invoice" class="ios-input">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1">TANGGAL PEMBELIAN</label>
+                            <input type="date" id="po-date" required class="ios-input">
+                        </div>
+                    </div>
                     <div>
-                        <span class="font-bold text-sm sm:text-base block leading-none" id="header-title">Dashboard</span>
-                        <span class="text-[10px] text-slate-400" id="sync-status">Status: Lokal</span>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">STATUS PENGIRIMAN</label>
+                        <select id="po-status" class="ios-input bg-white">
+                            <option value="Menunggu Pembayaran">⏳ Menunggu Pembayaran</option>
+                            <option value="Diproses Supplier">📦 Diproses Supplier</option>
+                            <option value="Dalam Pengiriman Kurir">🚚 Dalam Pengiriman Kurir</option>
+                            <option value="Selesai & Diterima">✅ Selesai & Diterima</option>
+                        </select>
                     </div>
+                    <button type="submit" class="ios-btn w-full mt-2">Catat Pembelian Baru</button>
+                </form>
+            </div>
+
+            <!-- Tabel Purchasing Tracker -->
+            <div class="ios-card p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2"><span>📦</span> Pelacakan Status Purchasing & Pengiriman</h3>
+                    <button onclick="exportTableToExcel('po-table', 'Data_Purchasing')" class="text-xs bg-emerald-600 text-white font-semibold px-3 py-1.5 rounded-xl shadow-sm">Download Excel</button>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <span class="text-xs px-2.5 py-1 rounded-full font-semibold uppercase" id="user-badge">Role</span>
-                    <button onclick="handleLogout()" class="text-xs bg-slate-100 hover:bg-slate-200 text-red-600 px-3 py-1.5 rounded-md font-medium transition">
-                        Keluar
-                    </button>
+                <div class="overflow-x-auto">
+                    <table id="po-table" class="w-full text-left text-xs sm:text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
+                                <th class="py-2.5 px-3">Tanggal</th>
+                                <th class="py-2.5 px-3">Barang</th>
+                                <th class="py-2.5 px-3">Platform</th>
+                                <th class="py-2.5 px-3">Harga</th>
+                                <th class="py-2.5 px-3">Kode Struk</th>
+                                <th class="py-2.5 px-3">Status Pengiriman</th>
+                            </tr>
+                        </thead>
+                        <tbody id="purchasing-tbody" class="divide-y divide-slate-100"></tbody>
+                    </table>
                 </div>
-            </header>
-
-            <!-- Konten Dinamis -->
-            <main class="flex-1 p-4 max-w-5xl w-full mx-auto pb-16 space-y-6">
-                
-                <!-- ================= VIEW: ADMIN ================= -->
-                <div id="admin-view" class="hidden space-y-6">
-                    <!-- Form Input Masuk / Keluar -->
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                        <h2 class="font-bold text-base mb-4 text-slate-800 flex items-center gap-2">
-                            <span>📝</span> Form Input Stok Barang
-                        </h2>
-                        <form onsubmit="submitTransaction(event)" class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">NAMA BARANG / BAHAN BAKU</label>
-                                <input type="text" id="tx-item" required placeholder="Contoh: Tepung Terigu, Mentega, Kotak Kue" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-pink-500 focus:outline-none">
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">JENIS TRANSAKSI</label>
-                                    <select id="tx-type" class="w-full border rounded-lg p-2.5 text-sm bg-white focus:ring-2 focus:ring-pink-500 focus:outline-none">
-                                        <option value="MASUK">🟢 Stok Masuk (Pembelian/Restock)</option>
-                                        <option value="KELUAR">🟠 Stok Keluar (Produksi/Terjual)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">JUMLAH (QTY & SATUAN)</label>
-                                    <input type="number" id="tx-qty" required min="1" placeholder="Contoh: 10" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-pink-500 focus:outline-none">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">KETERANGAN / VENDOR</label>
-                                <input type="text" id="tx-note" placeholder="Contoh: Pembelian dari Toko Bahan Makmur" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-pink-500 focus:outline-none">
-                            </div>
-                            <button type="submit" id="btn-submit-tx" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg text-sm transition shadow-sm">
-                                Simpan Transaksi
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- Riwayat Transaksi Admin -->
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                        <h2 class="font-bold text-base mb-3 text-slate-800 flex items-center gap-2">
-                            <span>🕒</span> Riwayat Input Terkini
-                        </h2>
-                        <div id="admin-tx-list" class="space-y-3"></div>
-                    </div>
-                </div>
-
-                <!-- ================= VIEW: OWNER ================= -->
-                <div id="owner-view" class="hidden space-y-6">
-                    
-                    <!-- Filter Periode & Tombol Ekspor -->
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-4 justify-between items-center">
-                        <div class="flex items-center gap-1.5 w-full md:w-auto">
-                            <button onclick="setFilterPeriod('all')" id="filter-all" class="flex-1 md:flex-initial px-3 py-1.5 text-xs font-semibold rounded-lg bg-pink-600 text-white transition">Semua</button>
-                            <button onclick="setFilterPeriod('day')" id="filter-day" class="flex-1 md:flex-initial px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">Hari Ini</button>
-                            <button onclick="setFilterPeriod('month')" id="filter-month" class="flex-1 md:flex-initial px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">Bulan Ini</button>
-                            <button onclick="setFilterPeriod('year')" id="filter-year" class="flex-1 md:flex-initial px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">Tahun Ini</button>
-                        </div>
-                        <div class="flex items-center gap-2 w-full md:w-auto">
-                            <button onclick="exportToExcel()" class="flex-1 md:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center justify-center gap-1.5">
-                                <span>📊</span> Export Excel
-                            </button>
-                            <button onclick="exportToPDF()" class="flex-1 md:flex-initial bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center justify-center gap-1.5">
-                                <span>📄</span> Export PDF
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Indikator Statistik -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                        <div class="bg-white p-4 rounded-xl border border-slate-200">
-                            <p class="text-[11px] text-slate-500 font-bold tracking-wider">TOTAL TRANSAKSI</p>
-                            <h3 id="stat-total" class="text-xl sm:text-2xl font-black text-slate-800 mt-1">0</h3>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border border-slate-200">
-                            <p class="text-[11px] text-emerald-600 font-bold tracking-wider">BARANG MASUK</p>
-                            <h3 id="stat-masuk" class="text-xl sm:text-2xl font-black text-emerald-600 mt-1">0</h3>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border border-slate-200">
-                            <p class="text-[11px] text-orange-600 font-bold tracking-wider">BARANG KELUAR</p>
-                            <h3 id="stat-keluar" class="text-xl sm:text-2xl font-black text-orange-600 mt-1">0</h3>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border border-slate-200">
-                            <p class="text-[11px] text-amber-600 font-bold tracking-wider">PENDING VOID</p>
-                            <h3 id="stat-pending" class="text-xl sm:text-2xl font-black text-amber-600 mt-1">0</h3>
-                        </div>
-                    </div>
-
-                    <!-- Approval Void List -->
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                        <h2 class="font-bold text-base mb-3 text-slate-800 flex items-center gap-2">
-                            <span>🛡️</span> Pusat Otorisasi & Permintaan Void
-                        </h2>
-                        <div id="owner-approval-list" class="space-y-3"></div>
-                    </div>
-
-                    <!-- Tabel Monitoring Transaksi -->
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                        <h2 class="font-bold text-base mb-3 text-slate-800 flex items-center gap-2">
-                            <span>📋</span> Data Seluruh Transaksi
-                        </h2>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs sm:text-sm">
-                                <thead>
-                                    <tr class="border-b bg-slate-50 text-slate-500 font-semibold uppercase">
-                                        <th class="py-2.5 px-3">Tanggal</th>
-                                        <th class="py-2.5 px-3">Nama Barang</th>
-                                        <th class="py-2.5 px-3">Jenis</th>
-                                        <th class="py-2.5 px-3">Qty</th>
-                                        <th class="py-2.5 px-3">Keterangan</th>
-                                        <th class="py-2.5 px-3">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="owner-tx-table" class="divide-y divide-slate-100"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                </div>
-
-            </main>
+            </div>
         </div>
 
+        <!-- ================= TAB 3: ANALYTICS & TREND ================= -->
+        <div id="section-analytics" class="hidden space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="ios-card p-5 text-center">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">TOTAL TRANSAKSI</p>
+                    <h3 id="stat-total-tx" class="text-2xl font-black text-slate-900 mt-1">0</h3>
+                </div>
+                <div class="ios-card p-5 text-center">
+                    <p class="text-[11px] font-bold text-red-500 uppercase tracking-wider">BARANG KRITIS / HABIS</p>
+                    <h3 id="stat-critical" class="text-2xl font-black text-red-600 mt-1">0</h3>
+                </div>
+                <div class="ios-card p-5 text-center">
+                    <p class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">TOTAL PURCHASING (RP)</p>
+                    <h3 id="stat-total-po" class="text-xl sm:text-2xl font-black text-emerald-600 mt-1">Rp 0</h3>
+                </div>
+            </div>
+
+            <!-- Chart Trend -->
+            <div class="ios-card p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-sm text-slate-800">📈 Trend Nama Barang yang Paling Banyak Keluar / Habis</h3>
+                </div>
+                <div class="h-72 w-full">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Pusat Otorisasi Void Khusus Owner / Manager -->
+            <div id="owner-approval-section" class="ios-card p-6 hidden">
+                <h3 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2"><span>🛡️</span> Dashboard Otorisasi Void (Persetujuan Manager/Owner)</h3>
+                <div id="owner-approval-list" class="space-y-3"></div>
+            </div>
+
+            <!-- Export Buttons Global -->
+            <div class="ios-card p-6 flex flex-col sm:flex-row gap-3 justify-between items-center">
+                <p class="text-xs font-semibold text-slate-600">Unduh Laporan Perusahaan Lengkap:</p>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="exportToExcel()" class="flex-1 sm:flex-initial bg-emerald-600 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-sm">Export Laporan Excel</button>
+                    <button onclick="exportToPDF()" class="flex-1 sm:flex-initial bg-rose-600 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-sm">Export Laporan PDF</button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center py-4 text-xs text-slate-400">
+            SISTEM STOK & PURCHASING PASTRY FITY • Made in by: April Y.
+        </footer>
     </div>
 
-    <!-- ================= JAVASCRIPT ENGINE ================= -->
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
     <script>
-        // ================= CONFIG GITHUB API =================
-        const TOKEN_PART_1 = "github_pat_11CLESV4Q0Y9 ";
-        const TOKEN_PART_2 = "5qeriK654j_9rtLjHcFIcaeNxkCCIpEyTMYgQq71jqreyAijVBL7UxE6ENKEWVfuvO0IEK ";
+        // Token GitHub & Konfigurasi Cloud
+        const TOKEN_PART_1 = "github_pat_11CLESV4Q0Y9";
+        const TOKEN_PART_2 = "5qeriK654j_9rtLjHcFIcaeNxkCCIpEyTMYgQq71jqreyAijVBL7UxE6ENKEWVfuvO0IEK";
         const GITHUB_TOKEN = TOKEN_PART_1 + TOKEN_PART_2;
-
         const GITHUB_USERNAME = "kerjaan203-source";
         const GITHUB_REPO     = "sistemstok";
-        const GITHUB_FILE     = "data.json";
+        const GITHUB_FILE     = "data_pastry_fity.json";
 
-        // Global State
+        // PIN Keamanan Peran
+        const PINS = { admin: "1234", owner: "8888" };
+
         let appData = {
             transactions: [],
+            purchasing: [],
             requests: []
         };
         let currentRole = null;
-        let activePeriod = 'all';
         let fileSha = null;
+        let trendChartInstance = null;
 
-        // Inisialisasi Saat Halaman Dimuat
         window.addEventListener('DOMContentLoaded', async () => {
-            await loadDataFromGitHub();
+            await loadDataFromCloud();
         });
 
-        // ================= SINKRONISASI GITHUB =================
-        async function loadDataFromGitHub() {
+        async function loadDataFromCloud() {
             const statusEl = document.getElementById('cloud-status');
-            const syncEl = document.getElementById('sync-status');
-            
             try {
-                statusEl.innerText = "Memuat data dari GitHub...";
+                statusEl.innerText = "Menghubungkan ke GitHub Cloud Server...";
                 const res = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
                 });
-
                 if (res.status === 200) {
                     const data = await res.json();
                     fileSha = data.sha;
-                    const decodedContent = decodeURIComponent(escape(atob(data.content)));
-                    appData = JSON.parse(decodedContent);
-                    statusEl.innerText = "🟢 Terhubung ke GitHub Database.";
-                    syncEl.innerText = "Status: Cloud (GitHub)";
-                } else if (res.status === 404) {
-                    statusEl.innerText = "File data.json belum ada, akan dibuat saat simpan data pertama.";
+                    appData = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+                    statusEl.innerText = "🟢 Terhubung ke Cloud GitHub (Aman)";
+                } else {
+                    statusEl.innerText = "⚠️ Belum ada file cloud, menggunakan memori lokal.";
+                    const local = localStorage.getItem('pastry_fity_data');
+                    if (local) appData = JSON.parse(local);
                 }
             } catch (err) {
-                console.error("Gagal sinkronisasi data:", err);
-                statusEl.innerText = "Gagal terhubung ke GitHub, beralih ke memori lokal.";
-                const local = localStorage.getItem('sipas_kue_data');
+                statusEl.innerText = "⚠️ Mode Offline (Menggunakan Penyimpanan Lokal)";
+                const local = localStorage.getItem('pastry_fity_data');
                 if (local) appData = JSON.parse(local);
             }
         }
 
-        async function syncToGitHub() {
-            localStorage.setItem('sipas_kue_data', JSON.stringify(appData));
-            const syncEl = document.getElementById('sync-status');
-            
-            syncEl.innerText = "Status: Menyimpan ke Cloud...";
+        async function saveToCloud() {
+            localStorage.setItem('pastry_fity_data', JSON.stringify(appData));
+            document.getElementById('sync-status').innerText = "Menyimpan ke Cloud...";
             try {
-                const utf8Content = unescape(encodeURIComponent(JSON.stringify(appData, null, 2)));
-                const base64Content = btoa(utf8Content);
-
-                const payload = {
-                    message: `Auto-sync: Transaksi Baru / Void (${new Date().toLocaleString('id-ID')})`,
-                    content: base64Content
-                };
+                const base64Content = btoa(unescape(encodeURIComponent(JSON.stringify(appData, null, 2))));
+                const payload = { message: "Auto-sync Pastry Fity System", content: base64Content };
                 if (fileSha) payload.sha = fileSha;
 
                 const res = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE}`, {
                     method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
                 if (res.ok) {
                     const resData = await res.json();
                     fileSha = resData.content.sha;
-                    syncEl.innerText = "Status: Tersimpan di GitHub";
+                    document.getElementById('sync-status').innerText = "Cloud Sinkron";
                 } else {
-                    syncEl.innerText = "Status: Sinkronisasi Cloud Gagal";
+                    document.getElementById('sync-status').innerText = "Gagal Sinkron Cloud";
                 }
-            } catch (err) {
-                console.error("Gagal push ke GitHub:", err);
-                syncEl.innerText = "Status: Offline (Disimpan Lokal)";
+            } catch (e) {
+                document.getElementById('sync-status').innerText = "Offline Mode";
             }
         }
 
-        // ================= AUTHENTICATION =================
         function handleLogin(e) {
             e.preventDefault();
-            currentRole = document.getElementById('login-role').value;
-            
-            document.getElementById('login-page').classList.add('hidden');
-            document.getElementById('dashboard-page').classList.remove('hidden');
+            const role = document.getElementById('login-role').value;
+            const pin = document.getElementById('login-pin').value;
 
-            const badge = document.getElementById('user-badge');
-            if (currentRole === 'admin') {
-                document.getElementById('header-title').innerText = 'Dashboard Operasional Admin';
-                badge.innerText = 'Admin';
-                badge.className = 'text-xs px-2.5 py-1 rounded-full font-semibold uppercase bg-blue-100 text-blue-700';
-                document.getElementById('admin-view').classList.remove('hidden');
-                document.getElementById('owner-view').classList.add('hidden');
-                renderAdminView();
+            if (pin === PINS[role]) {
+                currentRole = role;
+                document.getElementById('login-page').classList.add('hidden');
+                document.getElementById('dashboard-app').classList.remove('hidden');
+
+                const badge = document.getElementById('user-badge');
+                if (role === 'admin') {
+                    badge.innerText = "Admin Gudang";
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase bg-blue-100 text-blue-700";
+                    document.getElementById('owner-approval-section').classList.add('hidden');
+                } else {
+                    badge.innerText = "Owner / Manager";
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase bg-purple-100 text-purple-700";
+                    document.getElementById('owner-approval-section').classList.remove('hidden');
+                }
+                refreshUI();
             } else {
-                document.getElementById('header-title').innerText = 'Dashboard Eksekutif Owner';
-                badge.innerText = 'Owner / Manager';
-                badge.className = 'text-xs px-2.5 py-1 rounded-full font-semibold uppercase bg-purple-100 text-purple-700';
-                document.getElementById('owner-view').classList.remove('hidden');
-                document.getElementById('admin-view').classList.add('hidden');
-                renderOwnerView();
+                alert("PIN Keamanan salah! Periksa kembali PIN Anda.");
             }
         }
 
         function handleLogout() {
             currentRole = null;
             document.getElementById('login-page').classList.remove('hidden');
-            document.getElementById('dashboard-page').classList.add('hidden');
+            document.getElementById('dashboard-app').classList.add('hidden');
+            document.getElementById('login-pin').value = "";
         }
 
-        // ================= OPERASIONAL ADMIN =================
+        function switchTab(tab) {
+            ['stok', 'purchasing', 'analytics'].forEach(t => {
+                document.getElementById(`section-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).className = "flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl text-slate-600 hover:bg-white transition whitespace-nowrap";
+            });
+            document.getElementById(`section-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).className = "flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-sm transition whitespace-nowrap";
+            if(tab === 'analytics') renderAnalytics();
+        }
+
+        // Kalkulasi Inventaris Sisa Stok per Item
+        function getInventorySummary() {
+            let summary = {};
+            appData.transactions.forEach(tx => {
+                if(tx.status === 'VOID') return;
+                if(!summary[tx.item]) {
+                    summary[tx.item] = { name: tx.item, qty: 0, unit: tx.unit, minQty: tx.minQty };
+                }
+                if(tx.type === 'MASUK') {
+                    summary[tx.item].qty += Number(tx.qty);
+                } else {
+                    summary[tx.item].qty -= Number(tx.qty);
+                }
+                summary[tx.item].minQty = Number(tx.minQty);
+            });
+            return summary;
+        }
+
         async function submitTransaction(e) {
             e.preventDefault();
-            const btn = document.getElementById('btn-submit-tx');
-            btn.disabled = true;
-            btn.innerText = "Menyimpan...";
-
-            const now = new Date();
-            const newTx = {
+            const newItem = {
                 id: Date.now(),
-                rawDate: now.toISOString(),
-                dateStr: now.toLocaleDateString('id-ID'),
-                timeStr: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                dateStr: new Date().toLocaleDateString('id-ID'),
                 item: document.getElementById('tx-item').value.trim(),
                 type: document.getElementById('tx-type').value,
                 qty: Number(document.getElementById('tx-qty').value),
+                unit: document.getElementById('tx-unit').value.trim(),
+                minQty: Number(document.getElementById('tx-minqty').value),
                 note: document.getElementById('tx-note').value.trim() || '-',
                 status: 'AKTIF'
             };
 
-            appData.transactions.unshift(newTx);
-            await syncToGitHub();
-            
+            appData.transactions.unshift(newItem);
+            await saveToCloud();
             e.target.reset();
-            btn.disabled = false;
-            btn.innerText = "Simpan Transaksi";
-            renderAdminView();
-            alert('Transaksi stok berhasil dicatat!');
+            refreshUI();
+            alert('Transaksi barang berhasil disimpan!');
         }
 
-        function renderAdminView() {
-            const list = document.getElementById('admin-tx-list');
-            if (appData.transactions.length === 0) {
-                list.innerHTML = '<p class="text-xs text-slate-400 py-2">Belum ada data stok yang diinput.</p>';
-                return;
+        async function submitPurchasing(e) {
+            e.preventDefault();
+            const newPo = {
+                id: Date.now(),
+                date: document.getElementById('po-date').value,
+                item: document.getElementById('po-item').value.trim(),
+                platform: document.getElementById('po-platform').value.trim(),
+                price: Number(document.getElementById('po-price').value),
+                receipt: document.getElementById('po-receipt').value.trim(),
+                status: document.getElementById('po-status').value
+            };
+
+            appData.purchasing.unshift(newPo);
+            await saveToCloud();
+            e.target.reset();
+            refreshUI();
+            alert('Data purchasing berhasil dicatat!');
+        }
+
+        function refreshUI() {
+            // Render Inventory Stok
+            const summary = getInventorySummary();
+            const invTbody = document.getElementById('inventory-tbody');
+            const keys = Object.keys(summary);
+
+            if(keys.length === 0) {
+                invTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-slate-400">Belum ada data barang.</td></tr>';
+            } else {
+                invTbody.innerHTML = keys.map(k => {
+                    const item = summary[k];
+                    const isCritical = item.qty <= item.minQty;
+                    return `
+                        <tr class="hover:bg-slate-50">
+                            <td class="py-3 px-3 font-semibold text-slate-800">${item.name}</td>
+                            <td class="py-3 px-3 font-bold ${isCritical ? 'text-red-600' : 'text-slate-700'}">${item.qty} ${item.unit}</td>
+                            <td class="py-3 px-3 text-slate-500">${item.minQty} ${item.unit}</td>
+                            <td class="py-3 px-3">
+                                ${isCritical ? '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700 animate-pulse">⚠️ STOK KRITIS / HABIS</span>' : '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">Aman</span>'}
+                            </td>
+                            <td class="py-3 px-3">
+                                <button onclick="requestVoidItem('${item.name}')" class="text-xs bg-rose-50 text-rose-600 border border-rose-200 px-3 py-1 rounded-lg font-semibold">Request Void</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
             }
 
-            list.innerHTML = appData.transactions.slice(0, 15).map(tx => `
-                <div class="border border-slate-200 p-3 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-white">
+            // Render Purchasing Tracker
+            const poTbody = document.getElementById('purchasing-tbody');
+            if(appData.purchasing.length === 0) {
+                poTbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-slate-400">Belum ada data purchasing.</td></tr>';
+            } else {
+                poTbody.innerHTML = appData.purchasing.map(po => `
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-3 px-3 text-slate-500">${po.date}</td>
+                        <td class="py-3 px-3 font-semibold text-slate-800">${po.item}</td>
+                        <td class="py-3 px-3 text-slate-600">${po.platform}</td>
+                        <td class="py-3 px-3 font-medium text-slate-700">Rp ${po.price.toLocaleString('id-ID')}</td>
+                        <td class="py-3 px-3 font-mono text-xs text-blue-600">${po.receipt}</td>
+                        <td class="py-3 px-3 font-bold text-xs text-amber-700">${po.status}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // Render Owner Approval
+            if(currentRole === 'owner') {
+                renderOwnerApprovals();
+            }
+        }
+
+        async function requestVoidItem(itemName) {
+            const reason = prompt(`Masukkan alasan void/koreksi untuk barang "${itemName}":`);
+            if(!reason) return;
+
+            appData.requests.push({
+                id: Date.now(),
+                item: itemName,
+                reason: reason,
+                date: new Date().toLocaleDateString('id-ID')
+            });
+            await saveToCloud();
+            alert("Permintaan void telah dikirim ke Dashboard Owner/Manager.");
+            refreshUI();
+        }
+
+        function renderOwnerApprovals() {
+            const container = document.getElementById('owner-approval-list');
+            if(appData.requests.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400">Tidak ada pengajuan void yang tertunda.</p>';
+                return;
+            }
+            container.innerHTML = appData.requests.map(req => `
+                <div class="border border-amber-200 bg-amber-50 p-4 rounded-xl flex justify-between items-center">
                     <div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-sm text-slate-800">${tx.item}</span>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${tx.type === 'MASUK' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'}">
-                                ${tx.type} (${tx.qty})
-                            </span>
-                        </div>
-                        <p class="text-xs text-slate-500 mt-1">${tx.note} • <span class="text-slate-400">${tx.dateStr} ${tx.timeStr}</span></p>
-                        <p class="text-[11px] font-semibold mt-1 ${tx.status === 'AKTIF' ? 'text-slate-600' : tx.status === 'PENDING_VOID' ? 'text-amber-600' : 'text-red-500'}">Status: ${tx.status}</p>
+                        <p class="font-bold text-sm text-slate-800">Barang: ${req.item}</p>
+                        <p class="text-xs text-amber-900 mt-0.5">Alasan: "${req.reason}" (${req.date})</p>
                     </div>
-                    <div>
-                        ${tx.status === 'AKTIF' ? `
-                            <button onclick="requestVoid(${tx.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition">
-                                Request Void
-                            </button>
-                        ` : tx.status === 'PENDING_VOID' ? `
-                            <span class="text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded-md border border-amber-200 font-medium">Menunggu Owner</span>
-                        ` : `
-                            <span class="text-xs bg-slate-100 text-slate-400 px-2.5 py-1 rounded-md">Dibatalkan</span>
-                        `}
+                    <div class="flex gap-2">
+                        <button onclick="approveVoid(${req.id}, '${req.item}')" class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Setujui Void</button>
+                        <button onclick="rejectVoid(${req.id})" class="bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold">Tolak</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        async function requestVoid(id) {
-            const reason = prompt("Masukkan alasan kesalahan/koreksi untuk diajukan ke Owner:");
-            if (!reason) return;
-
-            const tx = appData.transactions.find(t => t.id === id);
-            if (tx) {
-                tx.status = 'PENDING_VOID';
-                appData.requests.push({
-                    id: Date.now(),
-                    txId: id,
-                    item: tx.item,
-                    type: tx.type,
-                    qty: tx.qty,
-                    reason: reason,
-                    date: new Date().toLocaleDateString('id-ID')
-                });
-                await syncToGitHub();
-                renderAdminView();
-                alert('Permintaan pembatalan (Void) telah diteruskan ke Owner.');
-            }
+        async function approveVoid(reqId, itemName) {
+            appData.requests = appData.requests.filter(r => r.id !== reqId);
+            appData.transactions.forEach(tx => {
+                if(tx.item === itemName) tx.status = 'VOID';
+            });
+            await saveToCloud();
+            refreshUI();
+            alert("Void disetujui. Data terkait telah dinonaktifkan.");
         }
 
-        // ================= OPERASIONAL OWNER =================
-        function setFilterPeriod(period) {
-            activePeriod = period;
-            ['all', 'day', 'month', 'year'].forEach(p => {
-                const btn = document.getElementById(`filter-${p}`);
-                if (p === period) {
-                    btn.className = 'flex-1 md:flex-initial px-3 py-1.5 text-xs font-semibold rounded-lg bg-pink-600 text-white transition';
-                } else {
-                    btn.className = 'flex-1 md:flex-initial px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition';
+        async function rejectVoid(reqId) {
+            appData.requests = appData.requests.filter(r => r.id !== reqId);
+            await saveToCloud();
+            refreshUI();
+            alert("Permintaan void ditolak.");
+        }
+
+        function renderAnalytics() {
+            const summary = getInventorySummary();
+            const keys = Object.keys(summary);
+            const criticalCount = keys.filter(k => summary[k].qty <= summary[k].minQty).length;
+            const totalPoPrice = appData.purchasing.reduce((acc, curr) => acc + curr.price, 0);
+
+            document.getElementById('stat-total-tx').innerText = appData.transactions.length;
+            document.getElementById('stat-critical').innerText = criticalCount;
+            document.getElementById('stat-total-po').innerText = `Rp ${totalPoPrice.toLocaleString('id-ID')}`;
+
+            // Render Chart Trend Barang Paling Banyak Keluar
+            let itemKeluarCount = {};
+            appData.transactions.forEach(tx => {
+                if(tx.type === 'KELUAR' && tx.status !== 'VOID') {
+                    itemKeluarCount[tx.item] = (itemKeluarCount[tx.item] || 0) + Number(tx.qty);
                 }
             });
-            renderOwnerView();
-        }
 
-        function getFilteredTransactions() {
-            const now = new Date();
-            return appData.transactions.filter(tx => {
-                const txDate = new Date(tx.rawDate);
-                if (activePeriod === 'day') {
-                    return txDate.toDateString() === now.toDateString();
+            const chartLabels = Object.keys(itemKeluarCount);
+            const chartData = Object.values(itemKeluarCount);
+
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            if(trendChartInstance) trendChartInstance.destroy();
+
+            trendChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels.length > 0 ? chartLabels : ['Belum Ada Data Keluar'],
+                    datasets: [{
+                        label: 'Total Qty Keluar / Habis',
+                        data: chartData.length > 0 ? chartData : [0],
+                        backgroundColor: '#007aff',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
                 }
-                if (activePeriod === 'month') {
-                    return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
-                }
-                if (activePeriod === 'year') {
-                    return txDate.getFullYear() === now.getFullYear();
-                }
-                return true;
             });
         }
 
-        function renderOwnerView() {
-            const filtered = getFilteredTransactions();
-
-            document.getElementById('stat-total').innerText = filtered.length;
-            document.getElementById('stat-masuk').innerText = filtered.filter(t => t.type === 'MASUK' && t.status !== 'VOID').length;
-            document.getElementById('stat-keluar').innerText = filtered.filter(t => t.type === 'KELUAR' && t.status !== 'VOID').length;
-            document.getElementById('stat-pending').innerText = appData.requests.length;
-
-            const approvalContainer = document.getElementById('owner-approval-list');
-            if (appData.requests.length === 0) {
-                approvalContainer.innerHTML = '<p class="text-xs text-slate-400">Tidak ada pengajuan void tertunda.</p>';
-            } else {
-                approvalContainer.innerHTML = appData.requests.map(req => `
-                    <div class="border border-amber-200 bg-amber-50/60 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div>
-                            <p class="font-bold text-sm text-slate-800">${req.item} <span class="text-xs font-semibold text-slate-500">(${req.type} - Qty: ${req.qty})</span></p>
-                            <p class="text-xs text-amber-900 mt-1 font-medium">Alasan Admin: "${req.reason}"</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Tgl Pengajuan: ${req.date}</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="approveVoid(${req.id}, ${req.txId})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
-                                Setujui Void
-                            </button>
-                            <button onclick="rejectVoid(${req.id}, ${req.txId})" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition">
-                                Tolak
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            const tbody = document.getElementById('owner-tx-table');
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-xs text-slate-400">Tidak ada data untuk periode ini.</td></tr>';
-            } else {
-                tbody.innerHTML = filtered.map(tx => `
-                    <tr class="hover:bg-slate-50">
-                        <td class="py-2.5 px-3 text-slate-500">${tx.dateStr}</td>
-                        <td class="py-2.5 px-3 font-semibold text-slate-800">${tx.item}</td>
-                        <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] font-bold ${tx.type === 'MASUK' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'}">${tx.type}</span></td>
-                        <td class="py-2.5 px-3 font-medium">${tx.qty}</td>
-                        <td class="py-2.5 px-3 text-slate-500">${tx.note}</td>
-                        <td class="py-2.5 px-3">
-                            <span class="text-xs font-bold ${tx.status === 'AKTIF' ? 'text-emerald-600' : tx.status === 'PENDING_VOID' ? 'text-amber-600' : 'text-rose-500'}">
-                                ${tx.status}
-                            </span>
-                        </td>
-                    </tr>
-                `).join('');
-            }
+        // Fitur Download / Export Universal
+        function exportTableToExcel(tableId, filename) {
+            const table = document.getElementById(tableId);
+            const wb = XLSX.utils.table_to_book(table, {sheet: "Sheet1"});
+            XLSX.writeFile(wb, `${filename}_${new Date().toLocaleDateString('id-ID')}.xlsx`);
         }
 
-        async function approveVoid(reqId, txId) {
-            appData.requests = appData.requests.filter(r => r.id !== reqId);
-            const tx = appData.transactions.find(t => t.id === txId);
-            if (tx) tx.status = 'VOID';
-            await syncToGitHub();
-            renderOwnerView();
-            alert('Transaksi telah di-void secara permanen.');
-        }
-
-        async function rejectVoid(reqId, txId) {
-            appData.requests = appData.requests.filter(r => r.id !== reqId);
-            const tx = appData.transactions.find(t => t.id === txId);
-            if (tx) tx.status = 'AKTIF';
-            await syncToGitHub();
-            renderOwnerView();
-            alert('Permintaan void ditolak.');
-        }
-
-        // ================= FITUR EXPORT =================
         function exportToExcel() {
-            const filtered = getFilteredTransactions();
-            if (filtered.length === 0) return alert('Tidak ada data transaksi untuk diekspor!');
-
-            const exportData = filtered.map((tx, idx) => ({
-                No: idx + 1,
-                Tanggal: tx.dateStr,
-                Waktu: tx.timeStr,
-                "Nama Barang": tx.item,
-                Tipe: tx.type,
-                Jumlah: tx.qty,
-                Keterangan: tx.note,
-                Status: tx.status
-            }));
-
-            const ws = XLSX.utils.json_to_sheet(exportData);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Laporan Stok");
-            XLSX.writeFile(wb, `Laporan_Stok_${activePeriod}_${new Date().toLocaleDateString('id-ID')}.xlsx`);
+            const wsTx = XLSX.utils.json_to_sheet(appData.transactions);
+            const wsPo = XLSX.utils.json_to_sheet(appData.purchasing);
+            XLSX.utils.book_append_sheet(wb, wsTx, "Inventaris Stok");
+            XLSX.utils.book_append_sheet(wb, wsPo, "Purchasing");
+            XLSX.writeFile(wb, `Laporan_Lengkap_PastryFity_${new Date().toLocaleDateString('id-ID')}.xlsx`);
         }
 
         function exportToPDF() {
-            const filtered = getFilteredTransactions();
-            if (filtered.length === 0) return alert('Tidak ada data transaksi untuk diekspor!');
-
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-
             doc.setFontSize(16);
-            doc.text("Laporan Stok & Purchasing - Toko Kue", 14, 15);
+            doc.text("Laporan Resmi - PASTRY FITY", 14, 15);
             doc.setFontSize(10);
-            doc.text(`Periode: ${activePeriod.toUpperCase()} | Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 14, 22);
+            doc.text(`Dicetak oleh: ${currentRole.toUpperCase()} | Tanggal: ${new Date().toLocaleString('id-ID')}`, 14, 22);
 
-            const tableRows = filtered.map((tx, idx) => [
-                idx + 1,
-                `${tx.dateStr} ${tx.timeStr}`,
-                tx.item,
-                tx.type,
-                tx.qty,
-                tx.note,
-                tx.status
-            ]);
-
+            const rows = appData.transactions.map((tx, idx) => [idx+1, tx.dateStr, tx.item, tx.type, `${tx.qty} ${tx.unit}`, tx.status]);
             doc.autoTable({
                 startY: 28,
-                head: [['No', 'Waktu', 'Barang', 'Tipe', 'Qty', 'Catatan', 'Status']],
-                body: tableRows,
-                theme: 'grid',
-                headStyles: { fillStyle: [219, 39, 119] }
+                head: [['No', 'Tanggal', 'Nama Barang', 'Tipe', 'Jumlah', 'Status']],
+                body: rows,
+                theme: 'grid'
             });
-
-            doc.save(`Laporan_Stok_${activePeriod}_${new Date().toLocaleDateString('id-ID')}.pdf`);
+            doc.save(`Laporan_PastryFity_${new Date().toLocaleDateString('id-ID')}.pdf`);
         }
     </script>
 </body>
